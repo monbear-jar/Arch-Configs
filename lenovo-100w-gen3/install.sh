@@ -2,15 +2,28 @@ installconfig () {
     sudo pacman -Syu hyprlock hypridle fontforge python
     echo "Linking hypr files into config directory..."
 
-    rm ~/.config/hypr/hyprland.conf
-
     readarray -d '' array < <(find . -name hypr*.conf -print0)
+
+    if [ ! -d "~/.config/hypr/backup" ]; then
+        mkdir ~/.config/hypr/backup
+    fi
+
+    for file in "${array[@]}"; do
+        filelink="${HOME}${file:1}"
+        if [ -f $filelink ]; then
+            mv $filelink ~/.config/hypr/backup
+        elif [ -L $filelink ]; then
+            rm $filelink
+        fi
+    done
 
     for file in "${array[@]}"; do
         filelink="$(pwd | tr -d '\n')"
         filelink+="${file:1}"
         ln -s "${filelink}" "${HOME}${file:1}"
     done
+
+    ln -s "$(pwd | tr -d '\n')/.config/hypr/scripts" "${HOME}/.config/hypr/scripts"
 
     sudo mkdir -p /usr/local/share/images
     sudo cp ./usr/local/share/images/theendofevangelion.jpg /usr/local/share/images
@@ -55,10 +68,19 @@ installevalockscreen () {
 
     echo "Linking hyprlock conf..."
 
-    rm ~/.config/hypr/hyprlock.conf
+    if [ ! -d "~/.config/hypr/backup" ]; then
+        mkdir ~/.config/hypr/backup
+    fi
+
+    file="${HOME}${file:1}"
+    if [ -f $file ]; then
+        mv $file ~/.config/hypr/backup
+    elif [ -L $file ]; then
+        rm $file
+    fi
 
     filelink="$(pwd | tr -d '\n')"
-    ln -s $filelink/hypr/hyprlock.conf $HOME/.config/hypr/hyprlock.conf
+    ln -s $filelink/.config/hypr/hyprlock.conf $HOME/.config/hypr/hyprlock.conf
 
     sudo mkdir -p /usr/local/share/images
     sudo cp ./usr/local/share/images/theendofevangelion.jpg /usr/local/share/images
@@ -77,11 +99,11 @@ fixtrackpad () {
         sudo cat /sys/firmware/acpi/tables/DSDT > dsdt.aml
         iasl -d dsdt.aml
 
-        stringcount="$(grep -c 'If ((^^^PCI0.LPC0.H_EC.ECRD (RefOf (^^^PCI0.LPC0.H_EC.TPTY)) == 0x02))' dsdt.dsl)"
+        stringcount="$(grep -c 'If ((^^^PCI0.LPC0.H_EC.ECRD (RefOf (^^^PCI0.LPC0.H_EC.TPTY)) == 0x02))' /tmp/dsdt.dsl)"
 
-        if [$stringcount -lt 2]; then
+        if [ $stringcount -lt "2" ]; then
             echo "Already patched!"
-        elif [$stringcount = 2]; then
+        elif [ $stringcount = "2" ]; then
             echo "Replacing text..."
             sed -i -z 's/If ((^^^PCI0.LPC0.H_EC.ECRD (RefOf (^^^PCI0.LPC0.H_EC.TPTY)) == 0x02))/Else/2' dsdt.dsl
             sed -i -z 's:CDAT://CDAT:8' dsdt.dsl
@@ -95,7 +117,7 @@ fixtrackpad () {
             sudo cp acpi_override /boot
 
             echo "Configurating GRUB..."
-            sudo sed -i '8iGRUB_EARLY_INITRD_LINUX_CUSTOM="acpi_override"' /etc/default/grub
+            sudo sed -i '$a\GRUB_EARLY_INITRD_LINUX_CUSTOM="acpi_override"' /etc/default/grub
             sudo grub-mkconfig -o /boot/grub/grub.cfg
 
             echo -e "\nYou need to restart for the trackpad fix to apply. Would you like to do that now? (Y/n)"

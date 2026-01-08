@@ -77,33 +77,39 @@ fixtrackpad () {
         sudo cat /sys/firmware/acpi/tables/DSDT > dsdt.aml
         iasl -d dsdt.aml
 
-        echo "Replacing text..."
-        sed -i -z 's/If ((^^^PCI0.LPC0.H_EC.ECRD (RefOf (^^^PCI0.LPC0.H_EC.TPTY)) == 0x02))/Else/2' dsdt.dsl
-        sed -i -z 's:CDAT://CDAT:8' dsdt.dsl
-        echo "Compiling DSDT file..."
-        iasl -sa dsdt.dsl
+        stringcount="$(grep -c 'If ((^^^PCI0.LPC0.H_EC.ECRD (RefOf (^^^PCI0.LPC0.H_EC.TPTY)) == 0x02))' dsdt.dsl)"
 
-        echo "Setting up CPIO table..."
-        mkdir -p ~/kernel/firmware/acpi
-        cd ~ && cp /tmp/dsdt.aml ~/kernel/firmware/acpi
-        find kernel | cpio -H newc --create > acpi_override
-        sudo cp acpi_override /boot
+        if [$stringcount -lt 2]; then
+            echo "Already patched!"
+        elif [$stringcount = 2]; then
+            echo "Replacing text..."
+            sed -i -z 's/If ((^^^PCI0.LPC0.H_EC.ECRD (RefOf (^^^PCI0.LPC0.H_EC.TPTY)) == 0x02))/Else/2' dsdt.dsl
+            sed -i -z 's:CDAT://CDAT:8' dsdt.dsl
+            echo "Compiling DSDT file..."
+            iasl -sa dsdt.dsl
 
-        echo "Configurating GRUB..."
-        sudo sed -i '8iGRUB_EARLY_INITRD_LINUX_CUSTOM="acpi_override"' /etc/default/grub
-        sudo grub-mkconfig -o /boot/grub/grub.cfg
+            echo "Setting up CPIO table..."
+            mkdir -p ~/kernel/firmware/acpi
+            cd ~ && cp /tmp/dsdt.aml ~/kernel/firmware/acpi
+            find kernel | cpio -H newc --create > acpi_override
+            sudo cp acpi_override /boot
 
-        echo -e "\nYou need to restart for the trackpad fix to apply. Would you like to do that now? (Y/n)"
-        read answer
+            echo "Configurating GRUB..."
+            sudo sed -i '8iGRUB_EARLY_INITRD_LINUX_CUSTOM="acpi_override"' /etc/default/grub
+            sudo grub-mkconfig -o /boot/grub/grub.cfg
 
-        if [[ "${answer,,}" == 'y' ]]; then
-            sudo reboot
-        elif [[ "${answer,,}" == 'n' ]]; then
-            exit
-        elif [[ "${answer,,}" == '' ]]; then
-            sudo reboot
+            echo -e "\nYou need to restart for the trackpad fix to apply. Would you like to do that now? (Y/n)"
+            read answer
+
+            if [[ "${answer,,}" == 'y' ]]; then
+                sudo reboot
+            elif [[ "${answer,,}" == 'n' ]]; then
+                exit
+            elif [[ "${answer,,}" == '' ]]; then
+                sudo reboot
+            fi
         fi
-    fi
+    fi  
 }
 
 bold () {

@@ -1,5 +1,5 @@
 installconfig () {
-    sudo pacman -Syu hyprlock hypridle fontforge python
+    sudo pacman -Syu hyprlock hypridle wine-stable fontforge python
     echo "Linking hypr files into config directory..."
 
     readarray -d '' array < <(find . -name hypr*.conf -print0)
@@ -60,7 +60,7 @@ installpowersaver () {
 }
 
 installevalockscreen () {
-    sudo pacman -Syu hyprlock fontforge python
+    sudo pacman -Syu hyprlock wine-stable fontforge python
     echo "Setting up fonts..."
 
     sh ./usr/local/share/fonts/ttf/NIS-Fonts/fontgrabber.sh

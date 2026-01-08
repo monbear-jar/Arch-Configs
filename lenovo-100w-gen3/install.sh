@@ -34,6 +34,7 @@ installpowersaver () {
     sudo pacman -Syu tlp
     echo "Setting up powersaving..."
 
+    sed -i -n "s/monbear/$USER/" ./etc/systemd/system/powersave.service
     sudo cp ./etc/systemd/system/powersave.service /etc/systemd/system/powersave.service
     sudo cp ./etc/udev/rules.d/99-powersave.rules /etc/udev/rules.d/99-powersave.rules
     sudo udevadm control --reload-rules && sudo udevadm trigger
@@ -55,7 +56,7 @@ installevalockscreen () {
 
     sudo mkdir -p /usr/local/share/images
     sudo cp ./usr/local/share/images/theendofevangelion.jpg /usr/local/share/images
-    
+
     echo "Setup EVA lockscreen!"
 }
 

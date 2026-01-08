@@ -5,8 +5,7 @@ classicfontupper="/usr/local/share/fonts/ttf/EVA-Matisse/EVA-MATISSE_CLASSIC.TTF
 standardfontupper="/usr/local/share/fonts/ttf/EVA-Matisse/EVA-MATISSE_STANDARD.TTF"
 
 function setupfonts() {
-    echo "Paste ISO link here: "
-    read link
+    link="https://archive.org/download/qjwi3h/qjwi3h.iso"
     wget -O $link evafonts.iso
     7z x -oEVA-ISO-Files evafonts.iso
     wine EVA-ISO-Files/EVAMatisseInstaller.exe

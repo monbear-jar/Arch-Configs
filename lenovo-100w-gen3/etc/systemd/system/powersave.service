@@ -1,0 +1,12 @@
+[Unit]
+Description=power script
+
+[Service]
+Restart=no
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=su -c "./usr/bin/powersave.sh 'true'" monbear
+ExecStop=su -c "./usr/bin/powersave.sh 'false'" monbear
+
+[Install]
+WantedBy=multi-user.target

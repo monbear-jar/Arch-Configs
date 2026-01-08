@@ -1,0 +1,2 @@
+ACTION=="remove", SUBSYSTEM=="usb_power_delivery", RUN+="/bin/systemctl start powersave > /tmp/udevlog.txt"
+ACTION=="add", SUBSYSTEM=="usb_power_delivery", RUN+="/bin/systemctl stop powersave > /tmp/udevlog.txt"

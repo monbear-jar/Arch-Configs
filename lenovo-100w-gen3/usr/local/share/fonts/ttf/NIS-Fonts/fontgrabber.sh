@@ -38,5 +38,8 @@ elif [[ ! -f $condensed && ! -f $regular ]]; then
     echo "Setup permissions"
 fi
 
+rm NIS-JTC-Win-M9-Condensed.ttf
+rm NIS-JTC-Win-M9.ttf
+
 echo "Done!"
 

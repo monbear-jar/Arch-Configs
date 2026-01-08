@@ -81,10 +81,10 @@ fixtrackpad () {
     sudo cp acpi_override /boot
 
     echo "Configurating GRUB..."
-    sudo sed -n -i '8iGRUB_EARLY_INITRD_LINUX_CUSTOM="acpi_override"' /etc/default/grub
+    sudo sed -i '8iGRUB_EARLY_INITRD_LINUX_CUSTOM="acpi_override"' /etc/default/grub
     sudo grub-mkconfig -o /boot/grub/grub.cfg
 
-    echo "\nYou need to restart for the trackpad fix to apply. Would you like to do that now? (Y/n)"
+    echo -e "\nYou need to restart for the trackpad fix to apply. Would you like to do that now? (Y/n)"
     read answer
 
     if [[ "${answer,,}" == 'y' ]]; then

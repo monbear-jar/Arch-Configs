@@ -6,7 +6,7 @@ standardfontupper="/usr/local/share/fonts/ttf/EVA-Matisse/EVA-MATISSE_STANDARD.T
 
 function setupfonts() {
     link="https://archive.org/download/qjwi3h/qjwi3h.iso"
-    wget -O $link evafonts.iso
+    wget -O evafonts.iso $link
     7z x -oEVA-ISO-Files evafonts.iso
     wine EVA-ISO-Files/EVAMatisseInstaller.exe
     if [ -d "/usr/local/share/fonts/ttf/EVA-Matisse" ]; then
